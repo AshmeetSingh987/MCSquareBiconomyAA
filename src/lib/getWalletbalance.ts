@@ -3,15 +3,13 @@ import { ERC20ABI } from './constants'
 
 const scrollProvider = 'https://sepolia-rpc.scroll.io'
 const mantleProvider = 'https://rpc.testnet.mantle.xyz'
-const polygonMumbaiProvider = `https://rpc.ankr.com/polygon_amoy`
+const sepoliaProvider = `https://sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
 const avalancheProvider = 'https://api.avax-test.network/ext/bc/C/rpc'
 
 export async function getWalletBalance(walletAddress: string): Promise<any> {
   const scrollProvider_ = new ethers.providers.JsonRpcProvider(scrollProvider)
   const mantleProvider_ = new ethers.providers.JsonRpcProvider(mantleProvider)
-  const polygonMumbaiProvider_ = new ethers.providers.JsonRpcProvider(
-    polygonMumbaiProvider
-  )
+  const sepoliaProvider_ = new ethers.providers.JsonRpcProvider(sepoliaProvider)
   const avalancheProvider_ = new ethers.providers.JsonRpcProvider(
     avalancheProvider
   )
@@ -22,9 +20,7 @@ export async function getWalletBalance(walletAddress: string): Promise<any> {
   const tokenAddressMantle = '0x254d06f33bDc5b8ee05b2ea472107E300226659A'
 
   const ETHbalanceOnMumabi = parseFloat(
-    ethers.utils.formatEther(
-      await polygonMumbaiProvider_.getBalance(walletAddress)
-    )
+    ethers.utils.formatEther(await sepoliaProvider_.getBalance(walletAddress))
   ).toFixed(2)
   const ETHbalanceOnScroll = parseFloat(
     ethers.utils.formatEther(await scrollProvider_.getBalance(walletAddress))
@@ -36,10 +32,10 @@ export async function getWalletBalance(walletAddress: string): Promise<any> {
     ethers.utils.formatEther(await mantleProvider_.getBalance(walletAddress))
   ).toFixed(2)
 
-  const tokenContractMumbai = new ethers.Contract(
+  const tokenContractSepolia = new ethers.Contract(
     tokenAddressMumbai,
     ERC20ABI,
-    polygonMumbaiProvider_
+    sepoliaProvider_
   )
   const tokenContractScroll = new ethers.Contract(
     tokenAddressScroll,

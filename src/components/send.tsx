@@ -161,7 +161,7 @@ export default function SendTransection() {
                       <SelectContent>
                         <SelectItem value='scroll'>Scroll</SelectItem>
                         <SelectItem value='mantle'>Mantle</SelectItem>
-                        <SelectItem value='mumbai'>Polygon Mumbai</SelectItem>
+                        <SelectItem value='mumbai'>Sepolia</SelectItem>
                         <SelectItem value='avalanche'>
                           Avalanche Fuji
                         </SelectItem>

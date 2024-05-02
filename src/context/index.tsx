@@ -19,14 +19,15 @@ import {
   SponsorUserOperationDto,
   PaymasterMode,
 } from '@biconomy/paymaster'
+// import {
+//   ECDSAOwnershipValidationModule,
+//   DEFAULT_ECDSA_OWNERSHIP_MODULE,
+// } from '@biconomy/modules'
 import {
-  ECDSAOwnershipValidationModule,
-  DEFAULT_ECDSA_OWNERSHIP_MODULE,
-} from '@biconomy/modules'
-import {
-  MultiChainValidationModule,
+  createMultiChainValidationModule,
   DEFAULT_MULTICHAIN_MODULE,
-} from '@biconomy-devx/modules'
+  MultiChainValidationModule,
+} from '@biconomy/modules'
 import { ethers } from 'ethers'
 import { getWalletBalance } from '@/lib/getWalletbalance'
 import { useToast } from '@/components/ui/use-toast'
@@ -60,13 +61,13 @@ type StateProviderProps = {
 
 type WalletBalances = {
   ETH: {
-    mumbai: number
+    sepolia: number
     scroll: number
     avalanche: number
     mantle: number
   }
   aUSDC: {
-    mumbai: number
+    sepolia: number
     scroll: number
     avalanche: number
     mantle: number
@@ -140,13 +141,13 @@ export function StateContextProvider({ children }: StateProviderProps) {
     },
   })
 
-  const mumbaiBundler: IBundler = new Bundler({
+  const sepoliaBundler: IBundler = new Bundler({
     bundlerUrl: process.env.NEXT_PUBLIC_POLYGON_BICONOMY_BUNDLER as string,
-    chainId: ChainId.POLYGON_MUMBAI,
+    chainId: ChainId.SEPOLIA,
     entryPointAddress: DEFAULT_ENTRYPOINT_ADDRESS,
   })
 
-  const mumbaiPaymaster: IPaymaster = new BiconomyPaymaster({
+  const sepoliaPaymaster: IPaymaster = new BiconomyPaymaster({
     paymasterUrl: process.env.NEXT_PUBLIC_POLYGON_BICONOMY_PAYMASTER as string,
   })
 
@@ -184,12 +185,12 @@ export function StateContextProvider({ children }: StateProviderProps) {
         moduleAddress: DEFAULT_MULTICHAIN_MODULE,
       })
 
-      // For polygon mumbai
-      const biconomySmartAccountConfigMumabi = {
+      // For  sepolia
+      const biconomySmartAccountConfigsepolia = {
         signer: web3Provider.getSigner(),
-        chainId: ChainId.POLYGON_MUMBAI,
-        paymaster: mumbaiPaymaster,
-        bundler: mumbaiBundler,
+        chainId: ChainId.SEPOLIA,
+        paymaster: sepoliaPaymaster,
+        bundler: sepoliaBundler,
         entryPointAddress: DEFAULT_ENTRYPOINT_ADDRESS,
         defaultValidationModule: multiChainModule,
         activeValidationModule: multiChainModule,
@@ -206,32 +207,32 @@ export function StateContextProvider({ children }: StateProviderProps) {
         activeValidationModule: multiChainModule,
       }
 
-      let biconomySmartAccountMumbai = await BiconomySmartAccountV2.create(
-        biconomySmartAccountConfigMumabi
+      let biconomySmartAccountsepolia = await BiconomySmartAccountV2.create(
+        biconomySmartAccountConfigsepolia
       )
 
       let biconomySmartAccountAvalanche = await BiconomySmartAccountV2.create(
         biconomySmartAccountConfigAvalanche
       )
 
-      const walletAddressMumbai =
-        await biconomySmartAccountMumbai.getAccountAddress()
+      const walletAddresssepolia =
+        await biconomySmartAccountsepolia.getAccountAddress()
       const walletAddressAvalanche =
         await biconomySmartAccountAvalanche.getAccountAddress()
-      console.log(walletAddressMumbai, walletAddressAvalanche)
+      console.log(walletAddresssepolia, walletAddressAvalanche)
 
-      const balance = await getWalletBalance(walletAddressMumbai)
+      const balance = await getWalletBalance(walletAddresssepolia)
 
       setWalletBalances(balance)
-      setAddress(walletAddressMumbai)
+      setAddress(walletAddresssepolia)
       setSmartAccounts([
-        biconomySmartAccountMumbai,
+        biconomySmartAccountsepolia,
         biconomySmartAccountAvalanche,
       ])
       setScwLoading(false)
       saveStateToLocalStorage(
-        walletAddressMumbai,
-        [biconomySmartAccountMumbai, biconomySmartAccountAvalanche],
+        walletAddresssepolia,
+        [biconomySmartAccountsepolia, biconomySmartAccountAvalanche],
         web3Provider,
         balance,
         transactions
@@ -260,12 +261,12 @@ export function StateContextProvider({ children }: StateProviderProps) {
       moduleAddress: DEFAULT_MULTICHAIN_MODULE,
     })
 
-    // For polygon mumbai
-    const biconomySmartAccountConfigMumabi = {
+    // For  sepolia
+    const biconomySmartAccountConfigsepolia = {
       signer: web3Provider.getSigner(),
-      chainId: ChainId.POLYGON_MUMBAI,
-      paymaster: mumbaiPaymaster,
-      bundler: mumbaiBundler,
+      chainId: ChainId.SEPOLIA,
+      paymaster: sepoliaPaymaster,
+      bundler: sepoliaBundler,
       entryPointAddress: DEFAULT_ENTRYPOINT_ADDRESS,
       defaultValidationModule: multiChainModule,
       activeValidationModule: multiChainModule,
@@ -282,10 +283,10 @@ export function StateContextProvider({ children }: StateProviderProps) {
       activeValidationModule: multiChainModule,
     }
 
-    let biconomySmartAccountMumbai = await BiconomySmartAccountV2.create(
-      biconomySmartAccountConfigMumabi
+    let biconomySmartAccountsepolia = await BiconomySmartAccountV2.create(
+      biconomySmartAccountConfigsepolia
     )
-    console.log(biconomySmartAccountMumbai.factoryAddress)
+    console.log(biconomySmartAccountsepolia.factoryAddress)
 
     let biconomySmartAccountAvalanche = await BiconomySmartAccountV2.create(
       biconomySmartAccountConfigAvalanche
@@ -304,9 +305,9 @@ export function StateContextProvider({ children }: StateProviderProps) {
     const avalanchePaymaster_ =
       biconomySmartAccountAvalanche.paymaster as IHybridPaymaster<SponsorUserOperationDto>
 
-    // Mumbai Paymaster
-    const mumbaiPaymaster_ =
-      biconomySmartAccountConfigMumabi.paymaster as IHybridPaymaster<SponsorUserOperationDto>
+    // sepolia Paymaster
+    const sepoliaPaymaster_ =
+      biconomySmartAccountConfigsepolia.paymaster as IHybridPaymaster<SponsorUserOperationDto>
 
     // First approve the sender smart contract to use the tokens
     const erc20Interface = new ethers.utils.Interface([
@@ -356,33 +357,33 @@ export function StateContextProvider({ children }: StateProviderProps) {
 
     // From the smart contract wallet send the tokens to address.
 
-    const erc20InterfaceMumbai = new ethers.utils.Interface([
+    const erc20Interfacesepolia = new ethers.utils.Interface([
       'function transfer(address to, uint256 value)',
     ])
-    const mumabiData1 = erc20InterfaceMumbai.encodeFunctionData('transfer', [
+    const sepoliaData1 = erc20Interfacesepolia.encodeFunctionData('transfer', [
       receiverWalletAddress,
       amountToSendFromChain2,
     ])
-    const mumabiTransection1 = {
+    const sepoliaTransection1 = {
       to: '0x2c852e740B62308c46DD29B982FBb650D063Bd07',
-      data: mumabiData1,
+      data: sepoliaData1,
     }
-    let mumbaiPartialUserOp = await biconomySmartAccountMumbai.buildUserOp([
-      mumabiTransection1,
+    let sepoliaPartialUserOp = await biconomySmartAccountsepolia.buildUserOp([
+      sepoliaTransection1,
     ])
     const userOp3PaymasterDataResponse =
-      await mumbaiPaymaster_.getPaymasterAndData(
-        mumbaiPartialUserOp,
+      await sepoliaPaymaster_.getPaymasterAndData(
+        sepoliaPartialUserOp,
         paymasterServiceData
       )
-    mumbaiPartialUserOp.paymasterAndData =
+    sepoliaPartialUserOp.paymasterAndData =
       userOp3PaymasterDataResponse.paymasterAndData
 
     // Get the transection signed
     const signedUserOps = await multiChainModule.signUserOps([
       { userOp: avalanchePartialUserOp1, chainId: 43114 },
       { userOp: avalanchePartialUserOp2, chainId: 43114 },
-      { userOp: mumbaiPartialUserOp, chainId: 80001 },
+      { userOp: sepoliaPartialUserOp, chainId: 11155111 },
     ])
 
     console.log(signedUserOps)
@@ -421,16 +422,17 @@ export function StateContextProvider({ children }: StateProviderProps) {
       console.log('error received ', e)
     }
     toast({
-      title: 'Transfering the tokens to Polygon Mumbai!',
+      title: 'Transfering the tokens to Polygon sepolia!',
     })
 
     // Wait for 2 minutes by default in any case
     await new Promise((resolve) => setTimeout(resolve, 120000))
 
     try {
-      const userOpResponse3 = await biconomySmartAccountMumbai.sendSignedUserOp(
-        signedUserOps[2] as any
-      )
+      const userOpResponse3 =
+        await biconomySmartAccountsepolia.sendSignedUserOp(
+          signedUserOps[2] as any
+        )
       const transactionDetails3 = await userOpResponse3.wait()
       console.log(
         `transactionDetails: ${JSON.stringify(transactionDetails3, null, '\t')}`
@@ -466,7 +468,7 @@ export function StateContextProvider({ children }: StateProviderProps) {
       setTransactions(response?.data?.allTransactions)
       saveStateToLocalStorage(
         address!,
-        [biconomySmartAccountMumbai, biconomySmartAccountAvalanche],
+        [biconomySmartAccountsepolia, biconomySmartAccountAvalanche],
         web3Provider,
         walletBalances!,
         transactions
